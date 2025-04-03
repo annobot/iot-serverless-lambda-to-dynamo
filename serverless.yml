@@ -1,0 +1,27 @@
+service: iot-lambda-dynamodb
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:PutItem"
+      Resource: "arn:aws:dynamodb:us-east-1:YOUR_ACCOUNT_ID:table/itotemperaturedata"
+    - Effect: "Allow"
+      Action:
+        - "iot:Receive"
+        - "iot:GetTopicRule"
+      Resource: "*"
+
+functions:
+  processIoTMessage:
+    handler: handler.processIoTMessage
+    events:
+      - iot:
+          sql: "SELECT * FROM 'temperaturesensor/data'"
+          sqlVersion: "2016-03-23"
+
+plugins:
+  - serverless-iam-roles-per-function
